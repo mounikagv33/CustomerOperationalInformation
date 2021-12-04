@@ -1,0 +1,60 @@
+.formHeader{
+  padding:60px;
+  padding-top: 30px;
+  padding-bottom: 20px;
+  font-weight: 400;
+  font-family:'Roboto', 'Helvetica Neue', Arial, 'Lucida Grande', Tahoma, Verdana, sans-serif;
+}
+.formBlock{
+  width: 800px;
+  padding: 30px;
+}
+.h2Text{
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+.divHeader{
+  color:#595d64;
+  font-size:15px;
+}
+.divBody{
+  margin: 15px;
+  padding-left: 10px;
+  font-family:'Roboto', 'Helvetica Neue', Arial, 'Lucida Grande', Tahoma, Verdana, sans-serif;
+}
+.inputfieldStyle{
+  margin-bottom: 15px;
+}
+.layoutitem{
+  padding-right: 10px;
+}
+.sectionHeading{
+  margin-bottom: 5px;
+  font-size: 29px;
+  font-weight: var(--lwc-fontWeightRegular, 400);
+  font-style: normal;
+  line-height: 29px;
+  color: #595d64;
+}
+.sectionText{
+  width: 90%;
+  margin-left: 5%;
+}
+.footerText{
+  font-family:'Roboto', 'Helvetica Neue', Arial, 'Lucida Grande', Tahoma, Verdana, sans-serif;
+}
+.fontText{
+  font-weight:bold;
+  color: var(--lwc-colorTextLabel,rgb(107, 109, 112))
+}
+.divBodySubHeader{
+  color:#595d64;
+  font-weight:bold;
+  font-size:15px;
+  margin-bottom:10px;
+}
+.THIS .slds-spinner_container  {
+  background-color: rgba(0, 0, 0, 0.10);
+  margin-top: 200px;
+  margin-bottom: 200px;
+}
