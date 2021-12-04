@@ -1,0 +1,212 @@
+<template>
+  <div>
+    <c-custom-toast auto-close-time="8000"></c-custom-toast>
+    <div class="slds-grid slds-gutters slds-align_absolute-center slds-text-align_left slds-p-around_none slds-m-around_none">
+      <div if:true={isLoaded}><lightning-spinner alternative-text="Loading..." variant="brand"> </lightning-spinner> </div><br/>
+      <template if:true={showForm}>
+        <template if:false={isError}>
+          <template if:false={isSubmitted}>
+            <lightning-card class="formBlock">
+              <div class="formHeader">
+                <h2 class="h2Text">Uber Freight Customer Information Form</h2>
+                <div class="divHeader">{label.headerTextLabel}</div>
+              </div>
+              <div class="slds-var-m-around_medium">
+                <div class = "divBody fontText">
+                  <lightning-input  label="Company Legal Name"
+                                      data-field="Company"
+                                      type="string"
+                                      value={company}
+                                      class="inputfieldStyle"
+                                      read-only>
+                  </lightning-input>
+                </div>
+                <template if:false={showOnlyBillingInfo}>
+                  <lightning-accordion onsectiontoggle={handleToggleSection} active-section-name={activeSections} class="accordionFont" allow-multiple-sections-open>
+                    <lightning-accordion-section name="customerdetails" label="Customer Details">
+
+                      <template if:true={showTimezone}>
+                        <lightning-combobox name="timezone" label="What timezone do your company's planners work in?" data-record-id="timezone" value={Operations_Timezone__c} options={timezonePicklistValues} onchange={handleChange} placeholder="Select an Option" class="fontText"></lightning-combobox><br/>
+                      </template>
+
+                      <template if:true={showBusinessDays}>
+                        <lightning-checkbox-group name="operationDay" label="What days of operation do your company's planners work?" options={businessDaysPicklistValues} value={opeartiondayvalue} data-record-id="operation" onchange={handleChange}></lightning-checkbox-group><br/>
+                      </template>
+                      <template if:true={showHoursOfOperation}>
+                        <div class="fontText">What hours do you company's planners work?
+                          <template if:true={showStartHour}>
+                            <lightning-input type="time" label="Starting Hour" data-record-id="starthour" value={Starting_hour_of_operation__c} onchange={handleChange}></lightning-input>
+                          </template>
+                          <template if:true={showEndHour}>
+                            <lightning-input type="time" label="Ending Hour" data-record-id="endhour" value={Ending_hour_of_operation__c} onchange={handleChange}></lightning-input>
+                          </template>
+                        </div>
+                      </template><br/>
+
+                      <div class="fontText">{label.plannerContactInfo}
+                        <table class="slds-table slds-table_bordered slds-no-row-hover slds-table_cell-buffer" role="grid">
+                          <thead>
+                          <tr>
+                              <th scope="col" height="22">First Name</th>
+                              <th scope="col" height="22">Last Name</th>
+                              <th scope="col" height="22">Email</th>
+                              <th scope="col" height="22">Title</th>
+                          </tr>
+                          </thead>
+                          <tbody>
+                            <template for:each={listOfContacts} for:item="rec">
+                              <tr key={rec} class="slds-hint-parent">
+                                <td><lightning-input type="text" variant="label-hidden" label="" data-id={rec.index} name="FirstName" value={rec.FirstName} onchange={handleInputChange}></lightning-input></td>
+                                <td><lightning-input type="text" variant="label-hidden" label="" data-id={rec.index} name="LastName" value={rec.LastName} onchange={handleInputChange}></lightning-input></td>
+                                <td><lightning-input type="email" variant="label-hidden" label="" data-id={rec.index} name="Email" value={rec.Email} onchange={handleInputChange}></lightning-input></td>
+                                <td><lightning-input type="text" variant="label-hidden" label="" data-id={rec.index} name="Title" value={rec.Title} onchange={handleInputChange}></lightning-input></td>
+                              </tr>
+                            </template>
+                            </tbody>
+                        </table>
+                        <div class="slds-p-left_small slds-p-vertical_small">
+                          <lightning-button variant="neutral"  label="Add More Contacts" title="Add More Contacts" icon-name="utility:add" onclick={addNewRow}></lightning-button>
+                        </div>
+                      </div>
+                      </lightning-accordion-section>
+
+                      <lightning-accordion-section name="tenderingdetails" label="Tendering Details">
+                        <template if:true={flagIndicatingDataHasBeenLoaded}>
+                          <c-tendering-details object-info={objectInfo}
+                                              show-edi-type={showEdiType}
+                                              ontenderdetailsevent={handleTenderingEvent}
+                                              record-id={recordId}>
+                          </c-tendering-details>
+                        </template>
+                      </lightning-accordion-section>
+
+                    <template if:true={showSchedulingDetails}>
+                      <lightning-accordion-section name="schedulingdetails" label="Scheduling Details">
+                        <div class="fontText">{label.loadsPreScheduled}
+                          <template if:true={showPickup}>
+                            <lightning-combobox name="pickup" label="Pickup:" data-record-id="pickup" value={Pick_Up_Appointment_Process_picklist__c} options={pickupDeliveryOptions} onchange={handleChange} placeholder="Select an Option" class="fontText"></lightning-combobox>
+                          </template>
+                          <template if:true={showDelivery}>
+                            <lightning-combobox name="delivery" label="Delivery:" data-record-id="delivery" value={Drop_Off_Appointment_Process_Picklist__c} options={pickupDeliveryOptions} onchange={handleChange} placeholder="Select an Option" class="fontText"></lightning-combobox>
+                          </template>
+                        </div>
+                      </lightning-accordion-section>
+                    </template>
+
+                    <template if:true={flagIndicatingDataHasBeenLoaded}>
+                      <template if:false={hideKPISection}>
+                        <lightning-accordion-section name="kpi" label="KPIs">
+                            <c-kpi-details operational-info-wrapper={operationalInfoWrapper}
+                                          object-info={objectInfo}
+                                          show-o-t-p={showOTP}
+                                          show-o-t-d={showOTD}
+                                          show-o-t-p-measure={showOTPMeasure}
+                                          show-o-t-d-measure={showOTDMeasure}
+                                          show-tracking-frequency={showTrackingFrequency}
+                                          show-tender-primary={showTenderPrimary}
+                                          show-tender-secondary={showTenderSecondary}
+                                          onkpidetailsevent={handleKPIAccessorialEvent}
+                                          >
+                            </c-kpi-details>
+                        </lightning-accordion-section>
+                      </template>
+
+                      <lightning-accordion-section name="billinginfo" label="Billing Information">
+                          <c-billing-information operational-info-wrapper={operationalInfoWrapper}
+                                                object-info={objectInfo}
+                                                onbillingdetailsevent={handleBillingEvent}>
+                          </c-billing-information>
+                          <template if:false={hideAccessorialSection}>
+                            <lightning-accordion-section name="accessorials" label="Accessorials">
+                              <c-accessorials operational-info-wrapper={operationalInfoWrapper}
+                                              object-info={objectInfo}
+                                              onaccessorialsdetailsevent={handleKPIAccessorialEvent}
+                                              record-id={recordId}>
+                              </c-accessorials>
+                            </lightning-accordion-section>
+                          </template>
+                      </lightning-accordion-section>
+
+
+                      <lightning-accordion-section name="others" label="Others">
+                        <div class="divHeader"> {label.PROVIDEFILES} </div>
+                        <lightning-input type="file" onchange={onFileUpload}  name="uploadFile" label="" multiple></lightning-input>
+                        <div class="slds-text-body_small slds-text-color_error">{fileNames}</div>
+                      </lightning-accordion-section>
+                    </template>
+                  </lightning-accordion>
+                </template>
+                <template if:true={showOnlyBillingInfo}>
+                  <template if:true={flagIndicatingDataHasBeenLoaded}>
+                    <div class="divBodySubHeader">
+                      Billing Information
+                    </div>
+                    <c-billing-information operational-info-wrapper={operationalInfoWrapper}
+                                            object-info={objectInfo}
+                                            onbillingdetailsevent={handleBillingEvent}>
+                    </c-billing-information>
+                    <br/>
+                    <template if:false={hideAccessorialSection}>
+                      <div class="divBodySubHeader">
+                        Accessorials
+                      </div>
+                      <c-accessorials operational-info-wrapper={operationalInfoWrapper}
+                                        object-info={objectInfo}
+                                        onaccessorialsdetailsevent={handleKPIAccessorialEvent}
+                                        record-id={recordId}>
+                      </c-accessorials>
+                    </template>
+                  </template>
+                </template>
+              </div>
+              <div class="formHeader">
+                <lightning-formatted-rich-text class="divHeader" value={label.footerTextLabel}></lightning-formatted-rich-text>
+              </div>
+              <div class="footerText">
+                <footer class="slds-modal__footer slds-align_absolute-center">
+                  <button class="slds-button slds-button_brand" onclick={submitDetails} title="Save">Submit</button>
+                </footer>
+              </div>
+            </lightning-card>
+          </template>
+          <template if:true={isSubmitted}>
+            <lightning-card class="formBlock">
+              <div class="slds-text-align_center">
+                  <div class="sectionHeading">
+                      Thank You <br/>
+                  </div>
+                  <div class="slds-show_inline-block sectionText">
+                      The form was submitted successfully.
+                  </div>
+              </div>
+          </lightning-card>
+          </template>
+        </template>
+      </template>
+      <template if:true={isError}>
+        <lightning-card class="formBlock">
+          <div class="slds-text-align_center">
+            <div class="sectionHeading">
+                Thank You <br/>
+            </div>
+            <div class="slds-show_inline-block sectionText">
+                {label.CUSTOMEROPSFORMERROR}
+            </div>
+          </div>
+        </lightning-card>
+      </template>
+      <template if:true={hideForm}>
+        <lightning-card class="formBlock">
+          <div class="slds-text-align_center">
+            <div class="sectionHeading">
+                Thank You <br/>
+            </div>
+            <div class="slds-show_inline-block sectionText">
+                {label.CUSTOMEROPSFORMSUCCESS}
+            </div>
+          </div>
+        </lightning-card>
+      </template>
+    </div>
+  </div>
+</template>
